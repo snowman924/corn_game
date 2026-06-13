@@ -1,4 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // 모바일 브라우저 핀치 줌 및 제스처 방지
+    document.addEventListener('touchstart', (e) => {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 1) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
+    document.addEventListener('gesturestart', (e) => {
+        e.preventDefault();
+    });
+
     // 1. 객체 생성 및 인스턴스화
     const soundManager = new SoundManager();
     const shopManager = new ShopManager();

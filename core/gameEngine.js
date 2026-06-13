@@ -162,10 +162,14 @@
                 
                 // 빅버터 업데이트
                 if (enemy instanceof BigButter) {
+                    const wasDashing = enemy.isDashing;
                     enemy.update(dt, this.player.x, this.player.y, (tx, ty) => {
                         // 버터 장판 콜백
                         this.projectiles.push(new Projectile(tx, ty, 0, 0, 'trail'));
                     });
+                    if (!wasDashing && enemy.isDashing) {
+                        if (this.onPlaySFX) this.onPlaySFX('butterSlide');
+                    }
                 } else {
                     // 일반 기름 병정 업데이트
                     enemy.update(dt, this.player.x, this.player.y, (sx, sy, vx, vy) => {
@@ -399,6 +403,7 @@
             }
 
             this.enemies.push(new BigButter(x, y, tx, ty));
+            if (this.onPlaySFX) this.onPlaySFX('butterWarning');
         }
     }
 

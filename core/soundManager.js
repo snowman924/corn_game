@@ -287,6 +287,78 @@
                 osc.start();
                 osc.stop(now + 0.2);
             }
+            else if (type === 'butterWarning') {
+                // 빅버터 출현 경고음: 낮고 묵직하게 울리는 경고음 2번 (쿵! 쿵!)
+                const playBeep = (delay, freq) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, now + delay);
+                    
+                    gain.gain.setValueAtTime(this.sfxVolume * 0.85, now + delay);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + 0.35);
+                    
+                    // 로우패스 필터로 부드럽게 (웅장하게)
+                    const filter = this.ctx.createBiquadFilter();
+                    filter.type = 'lowpass';
+                    filter.frequency.setValueAtTime(250, now + delay);
+                    
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    
+                    osc.start(now + delay);
+                    osc.stop(now + delay + 0.35);
+                };
+                
+                playBeep(0, 110);
+                playBeep(0.25, 110);
+            }
+            else if (type === 'butterSlide') {
+                // 버터 미끄러지는 소리: 주파수가 스르륵 낮아지는 삼각파 + 슥- 하는 필터링된 노이즈
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(280, now);
+                osc.frequency.exponentialRampToValueAtTime(80, now + 0.8);
+                
+                gain.gain.setValueAtTime(this.sfxVolume * 0.65, now);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+                
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(now + 0.8);
+
+                // 스르륵 노이즈 (버터가 팬에 닿아 미끄러지는 느낌)
+                const bufferSize = this.ctx.sampleRate * 0.8;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.Q.setValueAtTime(1.5, now);
+                filter.frequency.setValueAtTime(900, now);
+                filter.frequency.exponentialRampToValueAtTime(250, now + 0.8);
+
+                const noiseGain = this.ctx.createGain();
+                noiseGain.gain.setValueAtTime(this.sfxVolume * 0.45, now);
+                noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8);
+
+                noise.connect(filter);
+                filter.connect(noiseGain);
+                noiseGain.connect(this.ctx.destination);
+
+                noise.start();
+                noise.stop(now + 0.8);
+            }
         }
     }
 

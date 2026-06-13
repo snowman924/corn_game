@@ -32,6 +32,7 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    touch-action: none; /* 모바일에서 핀치 줌 및 더블 탭 줌 방지 */
 }
 
 /* 16:9 반응형 메인 컨테이너 */
@@ -48,6 +49,7 @@ body, html {
     display: flex;
     justify-content: center;
     align-items: center;
+    touch-action: none; /* 모바일 컨테이너 내부 터치 액션 기본 동작 방지 */
 }
 
 /* 화면이 세로로 긴 경우 조정 (모바일 가로모드 강제 느낌) */
