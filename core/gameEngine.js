@@ -387,19 +387,34 @@
         }
 
         spawnBigButter() {
-            // 왼쪽 가장자리에서 등장해서 오른쪽으로 돌진, 혹은 그 반대
-            const side = Math.floor(Math.random() * 2);
+            // 0: Left -> Right, 1: Right -> Left, 2: Top -> Bottom, 3: Bottom -> Top
+            const side = Math.floor(Math.random() * 4);
             let x, y, tx, ty;
             
-            y = 100 + Math.random() * (this.height - 200); // 맵 중앙 부분 Y축
-            ty = y;
+            if (side === 0 || side === 1) {
+                // 가로 출현
+                y = 100 + Math.random() * (this.height - 200); // 맵 중앙 부분 Y축
+                ty = y;
 
-            if (side === 0) { // Left -> Right
-                x = -80;
-                tx = this.width + 100;
-            } else { // Right -> Left
-                x = this.width + 80;
-                tx = -100;
+                if (side === 0) { // Left -> Right
+                    x = -80;
+                    tx = this.width + 100;
+                } else { // Right -> Left
+                    x = this.width + 80;
+                    tx = -100;
+                }
+            } else {
+                // 세로 출현
+                x = 100 + Math.random() * (this.width - 200); // 맵 중앙 부분 X축
+                tx = x;
+
+                if (side === 2) { // Top -> Bottom
+                    y = -80;
+                    ty = this.height + 100;
+                } else { // Bottom -> Top
+                    y = this.height + 80;
+                    ty = -100;
+                }
             }
 
             this.enemies.push(new BigButter(x, y, tx, ty));

@@ -95,7 +95,8 @@ class CanvasRenderer {
                     // 돌진 가이드라인 (반투명 경고 빨간띠)
                     ctx.save();
                     ctx.strokeStyle = 'rgba(230, 33, 23, 0.35)';
-                    ctx.lineWidth = enemy.height;
+                    const isVertical = Math.abs(enemy.targetY - enemy.y) > Math.abs(enemy.targetX - enemy.x);
+                    ctx.lineWidth = isVertical ? enemy.width : enemy.height;
                     ctx.setLineDash([15, 10]);
                     
                     // 돌진 궤적 그리기
@@ -110,10 +111,17 @@ class CanvasRenderer {
                     ctx.fillStyle = '#e62117';
                     ctx.textAlign = 'center';
                     
-                    // 경고 표시 Y축 보정
-                    let textY = enemy.y - 30;
-                    if (textY < 30) textY = enemy.y + 45;
-                    ctx.fillText('⚠️ 버터 급습 주의!', Math.max(100, Math.min(width - 100, enemy.x + (enemy.targetX > enemy.x ? 150 : -150))), textY);
+                    if (isVertical) {
+                        let textX = enemy.x - 80;
+                        if (textX < 50) textX = enemy.x + 80;
+                        const textY = enemy.y + (enemy.targetY > enemy.y ? 150 : -150);
+                        ctx.fillText('⚠️ 버터 급습 주의!', textX, textY);
+                    } else {
+                        // 경고 표시 Y축 보정
+                        let textY = enemy.y - 30;
+                        if (textY < 30) textY = enemy.y + 45;
+                        ctx.fillText('⚠️ 버터 급습 주의!', Math.max(100, Math.min(width - 100, enemy.x + (enemy.targetX > enemy.x ? 150 : -150))), textY);
+                    }
                 }
 
                 // 빅버터 바디 (네모난 버터 덩어리)

@@ -71,4 +71,34 @@ describe('GameEngine - Core Physics & Rules', () => {
         assert.equal(engine.status, 'VICTORY', "60초 생존 시 게임 상태는 VICTORY로 변경되어야 합니다.");
         assert.ok(engine.coinsEarned >= 100, "생존 성공 시 보너스 팝콘 코인을 획득해야 합니다.");
     });
+
+    it('T-AUTO-12: 빅버터 세로 및 가로 스폰 방향과 그에 따른 크기 검증', () => {
+        const engine = new GameEngine(800, 450);
+        const { BigButter } = require('../core/entities');
+
+        // 여러 번 스폰을 시도하여 가로와 세로 둘 다 정상적으로 생성되는지 검증
+        let hasHorizontal = false;
+        let hasVertical = false;
+
+        for (let i = 0; i < 20; i++) {
+            engine.enemies = [];
+            engine.spawnBigButter();
+            const bb = engine.enemies[0];
+            assert.ok(bb instanceof BigButter, "빅버터가 스폰되어야 합니다.");
+
+            const isVertical = Math.abs(bb.targetY - bb.y) > Math.abs(bb.targetX - bb.x);
+            if (isVertical) {
+                hasVertical = true;
+                assert.equal(bb.width, 40, "세로 돌진 시 빅버터의 width는 40이어야 합니다.");
+                assert.equal(bb.height, 60, "세로 돌진 시 빅버터의 height는 60이어야 합니다.");
+            } else {
+                hasHorizontal = true;
+                assert.equal(bb.width, 60, "가로 돌진 시 빅버터의 width는 60이어야 합니다.");
+                assert.equal(bb.height, 40, "가로 돌진 시 빅버터의 height는 40이어야 합니다.");
+            }
+        }
+
+        assert.ok(hasHorizontal, "가로 방향으로 빅버터가 1회 이상 스폰되어야 합니다.");
+        assert.ok(hasVertical, "세로 방향으로 빅버터가 1회 이상 스폰되어야 합니다.");
+    });
 });

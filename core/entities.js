@@ -192,8 +192,9 @@
             this.isDashing = false;
             
             // 충돌 판정용 사각형 정보 (돌진 시 약간 사각형 덩어리로 판정)
-            this.width = 60;
-            this.height = 40;
+            const isVertical = Math.abs(dy) > Math.abs(dx);
+            this.width = isVertical ? 40 : 60;
+            this.height = isVertical ? 60 : 40;
         }
 
         update(dt, playerX, playerY, addTrailCallback) {
