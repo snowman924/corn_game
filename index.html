@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>말랑 옥수수의 핫팬 탈출! | Soft Corn's Hot Pan Escape</title>
+    <!-- 구글 폰트: Fredoka (둥글둥글 귀여운 폰트), Outfit (숫자 및 메인 텍스트용) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Outfit:wght@100..900&family=Noto+Sans+KR:wght@300..900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- 1. 인트로 화면 (스토리 웹툰 카드형식) -->
+        <div id="intro-screen" class="screen active">
+            <div class="glass-panel intro-card">
+                <div class="story-slides">
+                    <!-- 씬 1 -->
+                    <div class="story-slide active" data-slide="0">
+                        <div class="story-image-placeholder scene-1">
+                            <div class="grandpa-character">👴✨🌽</div>
+                        </div>
+                        <div class="story-text">
+                            <h3>할아버지의 주방</h3>
+                            <p>"오, 옥수수가 아주 노랗고 잘 익었구나! 당장 팝콘으로 튀겨볼까?"</p>
+                        </div>
+                    </div>
+                    <!-- 씬 2 -->
+                    <div class="story-slide" data-slide="1">
+                        <div class="story-image-placeholder scene-2">
+                            <div class="kid-character">🧒🎈🍿</div>
+                        </div>
+                        <div class="story-text">
+                            <h3>어린 손자의 요청</h3>
+                            <p>"우와! 할아버지! 팝콘 엄청 많이 만들어 주세요! 얼른요!"</p>
+                        </div>
+                    </div>
+                    <!-- 씬 3 -->
+                    <div class="story-slide" data-slide="2">
+                        <div class="story-image-placeholder scene-3">
+                            <div class="pan-character">🔥🍳🏃‍♂️</div>
+                        </div>
+                        <div class="story-text">
+                            <h3>뜨거운 프라이팬 위로!</h3>
+                            <p>"으악! 앗 뜨거워! 버터 기름 병정들이 몰려온다! 팝콘이 되기 전에 60초만 버텨야 해!"</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="slide-controls">
+                    <button id="skip-intro-btn" class="btn secondary">스킵</button>
+                    <div class="slide-dots">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <button id="next-slide-btn" class="btn primary">다음</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. 메인 로비 화면 -->
+        <div id="lobby-screen" class="screen">
+            <div class="lobby-header">
+                <div class="coin-display glass-panel">
+                    <span class="coin-icon">🍿</span>
+                    <span id="lobby-coin-count" class="coin-text">0</span>
+                </div>
+            </div>
+            
+            <div class="lobby-content">
+                <h1 class="game-title">
+                    <span class="title-sub">뜨거운 팬 위의 생존작전</span>
+                    <span class="title-main">말랑 옥수수의<br>핫팬 탈출!</span>
+                </h1>
+                
+                <div class="character-preview">
+                    <div class="preview-corn idle-anim">🌽</div>
+                </div>
+
+                <div class="skill-slots-container">
+                    <h3>장착 스킬 (최대 2개)</h3>
+                    <div class="skill-slots">
+                        <div class="skill-slot empty" data-slot="0" id="slot-1">
+                            <span class="slot-label">스킬 1</span>
+                            <div class="equipped-skill-icon"></div>
+                        </div>
+                        <div class="skill-slot empty" data-slot="1" id="slot-2">
+                            <span class="slot-label">스킬 2</span>
+                            <div class="equipped-skill-icon"></div>
+                        </div>
+                    </div>
+                    <p class="lobby-tip">슬롯을 터치하여 스킬을 변경하세요</p>
+                </div>
+
+                <div class="lobby-buttons">
+                    <button id="open-shop-btn" class="btn secondary large">말랑 상점 🛒</button>
+                    <button id="start-game-btn" class="btn primary large action-pulse">게임 시작 🍳</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 인게임 화면 -->
+        <div id="game-screen" class="screen">
+            <div class="game-hud">
+                <div class="hud-left">
+                    <div class="hp-container glass-panel">
+                        <span class="hp-label">HP</span>
+                        <div class="hp-bar-outer">
+                            <div id="hp-bar-inner"></div>
+                        </div>
+                        <span id="hp-text">100/100</span>
+                    </div>
+                </div>
+                <div class="hud-center">
+                    <div class="timer-container glass-panel">
+                        <span id="game-timer">60.0</span>s
+                    </div>
+                </div>
+                <div class="hud-right">
+                    <div class="coin-display glass-panel">
+                        <span class="coin-icon">🍿</span>
+                        <span id="game-coin-count">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 게임 플레이 캔버스 -->
+            <div class="canvas-wrapper">
+                <canvas id="game-canvas" width="800" height="450"></canvas>
+                
+                <!-- 모바일 가상 조작패드 가이드 (터치 시 활성화됨) -->
+                <div id="joystick-container">
+                    <div id="joystick-base">
+                        <div id="joystick-stick"></div>
+                    </div>
+                </div>
+
+                <!-- 모바일 스킬 단축 버튼 레이어 -->
+                <div class="skill-buttons-overlay">
+                    <div class="skill-action-btn disabled" id="action-skill-1" data-slot="0">
+                        <span class="btn-cooldown"></span>
+                        <span class="btn-icon">🔒</span>
+                        <span class="btn-key">J</span>
+                    </div>
+                    <div class="skill-action-btn disabled" id="action-skill-2" data-slot="1">
+                        <span class="btn-cooldown"></span>
+                        <span class="btn-icon">🔒</span>
+                        <span class="btn-key">K</span>
+                    </div>
+                </div>
+            </div>
+            
+            <button id="pause-btn" class="glass-panel">⏸</button>
+        </div>
+
+        <!-- 4. 일시정지 모달 -->
+        <div id="pause-modal" class="modal-overlay">
+            <div class="glass-panel modal-content">
+                <h2>일시정지</h2>
+                <p>뜨거운 프라이팬이 잠시 식는 중...</p>
+                <div class="modal-buttons">
+                    <button id="resume-btn" class="btn primary">계속하기</button>
+                    <button id="quit-btn" class="btn secondary">로비로 나가기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 스킬 장착 선택 모달 -->
+        <div id="skill-select-modal" class="modal-overlay">
+            <div class="glass-panel modal-content">
+                <h2>스킬 장착</h2>
+                <p id="skill-select-subtitle">슬롯에 장착할 스킬을 선택하세요</p>
+                <div class="skill-list" id="modal-skill-list">
+                    <!-- JS에서 렌더링 -->
+                </div>
+                <button id="close-skill-modal-btn" class="btn secondary">닫기</button>
+            </div>
+        </div>
+
+        <!-- 6. 상점 화면 -->
+        <div id="shop-modal" class="modal-overlay">
+            <div class="glass-panel modal-content shop-content">
+                <div class="shop-header">
+                    <h2>말랑 상점 🛒</h2>
+                    <div class="coin-display">
+                        <span class="coin-icon">🍿</span>
+                        <span id="shop-coin-count">0</span>
+                    </div>
+                </div>
+                
+                <div class="shop-tabs">
+                    <button class="tab-btn active" data-tab="stat">능력치 강화</button>
+                    <button class="tab-btn" data-tab="skill">스킬 구매/강화</button>
+                </div>
+
+                <div class="shop-items-container">
+                    <div class="shop-tab-content active" id="tab-stat">
+                        <!-- JS에서 스태트 강화 렌더링 -->
+                    </div>
+                    <div class="shop-tab-content" id="tab-skill">
+                        <!-- JS에서 스킬 구매/강화 렌더링 -->
+                    </div>
+                </div>
+
+                <div class="shop-footer">
+                    <button id="close-shop-btn" class="btn secondary">상점 닫기</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. 결과 화면 (게임 오버 / 승리) -->
+        <div id="result-screen" class="screen">
+            <div class="glass-panel result-card">
+                <h2 id="result-title" class="result-title">게임 오버</h2>
+                <div class="result-corn-display">
+                    <!-- 성공 시 춤추는 옥수수 / 실패 시 시무룩한 팝콘 연출 -->
+                    <span id="result-corn-char" class="result-corn-char">🍿</span>
+                </div>
+                
+                <div class="result-stats">
+                    <div class="stat-row">
+                        <span class="stat-label">생존 시간</span>
+                        <span id="result-time" class="stat-val">00:00</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">기름 병정 처치</span>
+                        <span id="result-kills" class="stat-val">0</span>
+                    </div>
+                    <div class="stat-row highlight">
+                        <span class="stat-label">획득 팝콘 코인</span>
+                        <span id="result-coins" class="stat-val">+0</span>
+                    </div>
+                </div>
+
+                <div class="result-buttons">
+                    <button id="retry-game-btn" class="btn primary large">다시 도전 🍳</button>
+                    <button id="result-lobby-btn" class="btn secondary large">로비로 이동 🏠</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 연결 -->
+    <script src="core/soundManager.js"></script>
+    <script src="core/shopManager.js"></script>
+    <script src="core/entities.js"></script>
+    <script src="core/gameEngine.js"></script>
+    <script src="render/canvasRenderer.js"></script>
+    <script src="render/uiController.js"></script>
+</body>
+</html>
