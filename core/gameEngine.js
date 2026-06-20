@@ -141,7 +141,7 @@
             for (let i = 0; i < this.bigButterSchedule.length; i++) {
                 if (this.gameTime >= this.bigButterSchedule[i] && !this.bigButterSpawned[i]) {
                     this.bigButterSpawned[i] = true;
-                    this.spawnBigButter();
+                    this.spawnBigButter(inputVector);
                 }
             }
 
@@ -386,14 +386,33 @@
             this.enemies.push(new ButterSoldier(x, y));
         }
 
-        spawnBigButter() {
+        spawnBigButter(inputVector = { x: 0, y: 0 }) {
+            // 플레이어 예상 위치 계산 (예측 시간 0.6초)
+            const predictTime = 0.6;
+            const player = this.player;
+            
+            // 기본 타겟은 플레이어 현재 위치
+            let targetX = player ? player.x : this.width / 2;
+            let targetY = player ? player.y : this.height / 2;
+
+            if (player) {
+                // 입력 벡터와 플레이어 스피드를 반영해 예상 이동 위치 연산
+                targetX += inputVector.x * player.speed * predictTime;
+                targetY += inputVector.y * player.speed * predictTime;
+
+                // 맵 경계에서 50px 안전 완충 구역 안으로 제한
+                const margin = 50;
+                targetX = Math.max(margin, Math.min(this.width - margin, targetX));
+                targetY = Math.max(margin, Math.min(this.height - margin, targetY));
+            }
+
             // 0: Left -> Right, 1: Right -> Left, 2: Top -> Bottom, 3: Bottom -> Top
             const side = Math.floor(Math.random() * 4);
             let x, y, tx, ty;
             
             if (side === 0 || side === 1) {
-                // 가로 출현
-                y = 100 + Math.random() * (this.height - 200); // 맵 중앙 부분 Y축
+                // 가로 출현 (플레이어 예측 Y축 타겟팅)
+                y = targetY;
                 ty = y;
 
                 if (side === 0) { // Left -> Right
@@ -404,8 +423,8 @@
                     tx = -100;
                 }
             } else {
-                // 세로 출현
-                x = 100 + Math.random() * (this.width - 200); // 맵 중앙 부분 X축
+                // 세로 출현 (플레이어 예측 X축 타겟팅)
+                x = targetX;
                 tx = x;
 
                 if (side === 2) { // Top -> Bottom
@@ -417,7 +436,7 @@
                 }
             }
 
-            this.enemies.push(new BigButter(x, y, tx, ty));
+            this.enemies.push(new BigButter(x, y, tx, ty, this.width, this.height));
             if (this.onPlaySFX) this.onPlaySFX('butterWarning');
         }
     }

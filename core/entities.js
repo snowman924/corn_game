@@ -175,11 +175,13 @@
 
     // 빅버터 (보스 / 환경 장애물)
     class BigButter extends Enemy {
-        constructor(x, y, targetX, targetY) {
+        constructor(x, y, targetX, targetY, mapWidth = 800, mapHeight = 450) {
             // 무적 장애물이므로 체력을 높게 설정하고 데미지는 대시 충돌 시 25
             super(x, y, 9999, 320, 25, 25); 
             this.targetX = targetX;
             this.targetY = targetY;
+            this.mapWidth = mapWidth;
+            this.mapHeight = mapHeight;
             
             // 돌진 방향 각도 계산
             const dx = targetX - x;
@@ -218,7 +220,7 @@
                 }
                 
                 // 화면 밖으로 멀리 나가면 제거 대상 처리
-                if (this.x < -150 || this.x > 950 || this.y < -150 || this.y > 600) {
+                if (this.x < -150 || this.x > this.mapWidth + 150 || this.y < -150 || this.y > this.mapHeight + 150) {
                     this.isDead = true;
                 }
             }
