@@ -398,10 +398,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let logicalHeight = 450;
 
         if (isPortrait) {
-            // 세로 모드: 너비 480을 기준 삼고, 180px 컨트롤 패널을 제외한 실제 캔버스 영역의 화면 비율에 맞춰 높이 연산
+            // 세로 모드: 너비 480을 기준 삼고, 전체 화면 높이에 맞춰 높이 연산
             logicalWidth = 480;
             const canvasPhysicalWidth = window.innerWidth;
-            const canvasPhysicalHeight = window.innerHeight - 180;
+            const canvasPhysicalHeight = window.innerHeight; // 전체 화면 높이를 반영하여 맵 전체를 세로로 확장
             logicalHeight = Math.round(logicalWidth * (canvasPhysicalHeight / canvasPhysicalWidth));
         }
 
