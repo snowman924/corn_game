@@ -71,7 +71,7 @@
             this.gameTime = 0;
             this.status = 'PLAYING';
             this.coinsEarned = 0;
-            this.spawnTimer = 0;
+            this.spawnTimer = 3.0; // 시작 시 3초의 안전 준비 대기 시간 부여
             this.bigButterSpawned = [false, false, false];
             this.screenShake = 0;
         }
@@ -149,8 +149,8 @@
             this.spawnTimer -= dt;
             if (this.spawnTimer <= 0) {
                 this.spawnTimer = 5.0;
-                // 생존 10초당 스폰 수 1개씩 추가 (최소 2개)
-                const count = 2 + Math.floor(this.gameTime / 10);
+                // 생존 15초당 스폰 수 1개씩 추가 (최소 1개)
+                const count = 1 + Math.floor(this.gameTime / 15);
                 for (let i = 0; i < count; i++) {
                     this.spawnButterSoldier();
                 }

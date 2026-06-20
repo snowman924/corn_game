@@ -475,31 +475,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     joystickZone.addEventListener('touchstart', (e) => {
         if (engine.status !== 'PLAYING') return;
+
+        // 터치 대상이 고정 UI 요소(스킬 버튼, 일시정지 버튼 등)인지 판별하여 조이스틱 트리거 방지
+        const target = e.target;
+        if (target.closest('.skill-action-btn') || target.closest('#pause-btn')) {
+            return;
+        }
+
         const touch = e.touches[0];
         const rect = joystickZone.getBoundingClientRect();
         
         isTouchingJoystick = true;
         
-        // 세로모드 여부 판정 (비율 1.25 미만)
-        const isPortrait = window.matchMedia("(max-aspect-ratio: 1.25)").matches;
+        // 세로/가로 모드 구분 없이, 터치한 위치에 조이스틱 베이스를 띄우고 시작점으로 설정
+        const touchX = touch.clientX - rect.left;
+        const touchY = touch.clientY - rect.top;
         
-        if (isPortrait) {
-            // 세로 모드: 조이스틱이 고정되어 있으므로, joystick-base의 기하학적 중심을 시작점으로 고정
-            const baseRect = joystickBase.getBoundingClientRect();
-            joystickStartPos = {
-                x: baseRect.left + baseRect.width / 2 - rect.left,
-                y: baseRect.top + baseRect.height / 2 - rect.top
-            };
-        } else {
-            // 가로 모드: 터치한 위치에 조이스틱 베이스를 띄움
-            const touchX = touch.clientX - rect.left;
-            const touchY = touch.clientY - rect.top;
-            
-            joystickStartPos = { x: touchX, y: touchY };
-            
-            joystickContainer.style.left = `${touchX - 65}px`;
-            joystickContainer.style.top = `${touchY - 65}px`;
-        }
+        joystickStartPos = { x: touchX, y: touchY };
+        
+        joystickContainer.style.left = `${touchX - 65}px`;
+        joystickContainer.style.top = `${touchY - 65}px`;
         
         joystickContainer.classList.add('active');
         joystickStick.style.transform = 'translate(0px, 0px)';
@@ -544,12 +539,9 @@ document.addEventListener('DOMContentLoaded', () => {
         joystickContainer.classList.remove('active');
         joystickStick.style.transform = 'translate(0px, 0px)';
         
-        // 가로모드용 스타일 초기화 (세로모드는 CSS에 의해 복구됨)
-        const isPortrait = window.matchMedia("(max-aspect-ratio: 1.25)").matches;
-        if (!isPortrait) {
-            joystickContainer.style.left = '';
-            joystickContainer.style.top = '';
-        }
+        // 터치 지점 스타일 초기화 (세로모드는 CSS 기본값으로 복구되고 가로모드는 숨겨짐)
+        joystickContainer.style.left = '';
+        joystickContainer.style.top = '';
     }, { passive: true });
 
     // ==========================================================================
@@ -599,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 모달/스킬 버튼 모바일 터치 이벤트 연결
     skillActionBtn1.addEventListener('touchstart', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         activeSkillsPressed[0] = true;
     });
     skillActionBtn1.addEventListener('touchend', () => {
@@ -613,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     skillActionBtn2.addEventListener('touchstart', (e) => {
         e.preventDefault();
+        e.stopPropagation();
         activeSkillsPressed[1] = true;
     });
     skillActionBtn2.addEventListener('touchend', () => {
@@ -749,6 +743,10 @@ document.addEventListener('DOMContentLoaded', () => {
         soundManager.playSFX('click');
         togglePause();
     });
+    // 터치 디바이스에서 터치 이벤트가 조이스틱 감지 영역으로 버블링되는 현상 방지
+    pauseBtn.addEventListener('touchstart', (e) => {
+        e.stopPropagation();
+    }, { passive: true });
     resumeBtn.addEventListener('click', () => {
         soundManager.playSFX('click');
         togglePause();
