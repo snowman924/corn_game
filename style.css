@@ -52,11 +52,21 @@ body, html {
     touch-action: none; /* 모바일 컨테이너 내부 터치 액션 기본 동작 방지 */
 }
 
-/* 화면이 세로로 긴 경우 조정 (모바일 가로모드 강제 느낌) */
-@media (max-aspect-ratio: 16/9) {
+/* PC 및 대화면 가로모드: 화면 비율이 16:9 이상일 때 높이에 맞게 너비 조절 */
+@media (min-aspect-ratio: 16/9) {
     #game-container {
         width: 177.78vh;
         height: 100vh;
+    }
+}
+
+/* 모바일 세로화면 또는 좁은 화면 (비율 1.25 미만): 전체 화면 채우기 */
+@media (max-aspect-ratio: 1.25) {
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
     }
 }
 
@@ -377,6 +387,20 @@ body, html {
     padding: 0;
 }
 
+#game-screen.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+@media (max-aspect-ratio: 1.25) {
+    #game-screen.active {
+        justify-content: flex-start;
+        height: 100%;
+    }
+}
+
 .game-hud {
     position: absolute;
     top: 16px;
@@ -463,6 +487,14 @@ body, html {
     box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.8);
 }
 
+@media (max-aspect-ratio: 1.25) {
+    .canvas-wrapper {
+        width: 100vw;
+        height: calc(100vh - 180px); /* 하단 180px 제외한 상단 전체 공간 확보 */
+        flex-shrink: 0;
+    }
+}
+
 #pause-btn {
     position: absolute;
     top: 16px;
@@ -479,6 +511,33 @@ body, html {
     border: 1px solid var(--glass-border);
 }
 
+@media (max-aspect-ratio: 1.25) {
+    #pause-btn {
+        top: 70px;
+        right: 16px;
+    }
+}
+
+/* 모바일/PC 대응 컨트롤 패널 */
+#control-panel {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 180px;
+    pointer-events: none;
+    z-index: 16;
+}
+
+#joystick-zone {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    pointer-events: auto;
+}
+
 /* 모바일 가상 조작패드 가이드 */
 #joystick-container {
     position: absolute;
@@ -486,10 +545,9 @@ body, html {
     left: 36px;
     width: 130px;
     height: 130px;
-    z-index: 16;
-    opacity: 0.35;
+    opacity: 0;
     transition: opacity 0.2s;
-    pointer-events: none; /* 실제 터치 감지는 canvas에서 */
+    pointer-events: none;
 }
 
 #joystick-container.active {
@@ -526,6 +584,60 @@ body, html {
     display: flex;
     gap: 16px;
     z-index: 16;
+    pointer-events: auto;
+}
+
+/* 모바일 세로화면(Portrait) 레이아웃 스위칭 */
+@media (max-aspect-ratio: 1.25) {
+    #control-panel {
+        position: relative;
+        width: 100%;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 20px;
+        background: #100b1a;
+        border-top: 2px solid var(--glass-border);
+        pointer-events: auto;
+    }
+
+    #joystick-zone {
+        position: relative;
+        width: 50%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #joystick-container {
+        position: relative;
+        bottom: auto;
+        left: auto;
+        opacity: 0.55; /* 상시 반투명 노출 */
+    }
+
+    #joystick-container.active {
+        opacity: 0.85;
+    }
+
+    .skill-buttons-overlay {
+        position: relative;
+        bottom: auto;
+        right: auto;
+        width: 50%;
+        height: 100%;
+        display: flex;
+        gap: 16px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .skill-action-btn .btn-key {
+        display: none; /* 모바일 세로모드에서는 키 텍스트 숨김 */
+    }
 }
 
 .skill-action-btn {
@@ -953,4 +1065,116 @@ body, html {
     0% { box-shadow: 0 0 0 0 rgba(255, 126, 0, 0.6); }
     70% { box-shadow: 0 0 0 12px rgba(255, 126, 0, 0); }
     100% { box-shadow: 0 0 0 0 rgba(255, 126, 0, 0); }
+}
+
+/* ==========================================================================
+   세로 모드(Portrait)를 위한 추가 반응형 스타일 조율
+   ========================================================================== */
+@media (max-aspect-ratio: 1.25) {
+    /* 공통 스크린 패딩 축소 */
+    .screen {
+        padding: 16px;
+    }
+
+    /* 1. 인트로 화면 */
+    .intro-card {
+        width: 92%;
+        height: 85%;
+        padding: 16px;
+    }
+    .story-image-placeholder {
+        width: 85%;
+        height: 50%;
+        font-size: 3rem;
+    }
+    .story-text h3 {
+        font-size: 1.25rem;
+    }
+    .story-text p {
+        font-size: 0.9rem;
+        max-width: 95%;
+    }
+
+    /* 2. 메인 로비 화면 */
+    .lobby-header {
+        top: 16px;
+        right: 16px;
+    }
+    .lobby-content {
+        justify-content: space-around;
+        height: 95%;
+    }
+    .title-main {
+        font-size: 2.2rem;
+    }
+    .preview-corn {
+        font-size: 4.2rem;
+    }
+    .skill-slots-container {
+        width: 290px;
+    }
+    .skill-slot {
+        width: 62px;
+        height: 62px;
+    }
+    .lobby-buttons {
+        gap: 12px;
+        width: 100%;
+        margin-bottom: 5px;
+    }
+    .btn.large {
+        padding: 12px 24px;
+        font-size: 1.1rem;
+        border-radius: 12px;
+    }
+
+    /* 3. 모달 공통 및 상점 */
+    .modal-content {
+        max-width: 94%;
+        padding: 16px;
+    }
+    .shop-content {
+        width: 94%;
+        height: 90%;
+        max-height: 82vh; /* 세로 화면에서 최대한 길게 노출 */
+    }
+    .shop-items-container {
+        max-height: 55vh;
+    }
+    .shop-item {
+        padding: 8px 10px;
+    }
+    .shop-item-details h4 {
+        font-size: 0.85rem;
+    }
+    .shop-item-details p {
+        font-size: 0.7rem;
+    }
+    .buy-btn {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+        min-width: 75px;
+    }
+
+    /* 4. 결과 화면 */
+    .result-card {
+        width: 92%;
+        padding: 20px 16px;
+        gap: 16px;
+    }
+    .result-title {
+        font-size: 1.8rem;
+    }
+    .result-corn-display {
+        font-size: 3.5rem;
+    }
+    .result-stats {
+        padding: 12px;
+    }
+    .stat-row {
+        font-size: 0.85rem;
+    }
+    .stat-row.highlight {
+        font-size: 1rem;
+    }
 }

@@ -1,3 +1,8 @@
+window.onerror = function(message, source, lineno, colno, error) {
+    alert("Error: " + message + "\nLine: " + lineno + "\nSource: " + source);
+    return false;
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // 모바일 브라우저 핀치 줌 및 제스처 방지
     document.addEventListener('touchstart', (e) => {
@@ -77,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const skillActionBtn2 = document.getElementById('action-skill-2');
 
     // 조작 스틱 엘리먼트
+    const joystickZone = document.getElementById('joystick-zone');
     const joystickContainer = document.getElementById('joystick-container');
     const joystickBase = document.getElementById('joystick-base');
     const joystickStick = document.getElementById('joystick-stick');
@@ -386,7 +392,26 @@ document.addEventListener('DOMContentLoaded', () => {
         soundManager.playSFX('click');
         soundManager.playBGM();
 
-        // 게임 엔진 초기화 (세이브 데이터 전달)
+        // 1. 화면 방향에 따른 논리 해상도 동적 연산
+        const isPortrait = window.matchMedia("(max-aspect-ratio: 1.25)").matches;
+        let logicalWidth = 800;
+        let logicalHeight = 450;
+
+        if (isPortrait) {
+            // 세로 모드: 너비 480을 기준 삼고, 180px 컨트롤 패널을 제외한 실제 캔버스 영역의 화면 비율에 맞춰 높이 연산
+            logicalWidth = 480;
+            const canvasPhysicalWidth = window.innerWidth;
+            const canvasPhysicalHeight = window.innerHeight - 180;
+            logicalHeight = Math.round(logicalWidth * (canvasPhysicalHeight / canvasPhysicalWidth));
+        }
+
+        // 2. 엔진 좌표계와 캔버스 자체 픽셀 규격 일치화
+        engine.width = logicalWidth;
+        engine.height = logicalHeight;
+        canvas.width = logicalWidth;
+        canvas.height = logicalHeight;
+
+        // 3. 게임 엔진 초기화 (가변 해상도 정보를 머금은 상태로 초기화)
         engine.init(shopManager.saveData);
         
         // HUD 초기 세팅
@@ -445,31 +470,45 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     // 가상 조작패드 (Touch Joystick) 연동
     // ==========================================================================
-    canvas.addEventListener('touchstart', (e) => {
+    // ==========================================================================
+    // 가상 조작패드 (Touch Joystick) 연동
+    // ==========================================================================
+    joystickZone.addEventListener('touchstart', (e) => {
         if (engine.status !== 'PLAYING') return;
         const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
+        const rect = joystickZone.getBoundingClientRect();
         
         isTouchingJoystick = true;
         
-        // 터치 시작점 기록
-        joystickStartPos = {
-            x: touch.clientX - rect.left,
-            y: touch.clientY - rect.top
-        };
-
-        // 가상 스틱 UI 노출
-        joystickContainer.style.left = `${joystickStartPos.x - 65}px`;
-        joystickContainer.style.top = `${joystickStartPos.y - 65}px`;
-        joystickContainer.classList.add('active');
+        // 세로모드 여부 판정 (비율 1.25 미만)
+        const isPortrait = window.matchMedia("(max-aspect-ratio: 1.25)").matches;
         
+        if (isPortrait) {
+            // 세로 모드: 조이스틱이 고정되어 있으므로, joystick-base의 기하학적 중심을 시작점으로 고정
+            const baseRect = joystickBase.getBoundingClientRect();
+            joystickStartPos = {
+                x: baseRect.left + baseRect.width / 2 - rect.left,
+                y: baseRect.top + baseRect.height / 2 - rect.top
+            };
+        } else {
+            // 가로 모드: 터치한 위치에 조이스틱 베이스를 띄움
+            const touchX = touch.clientX - rect.left;
+            const touchY = touch.clientY - rect.top;
+            
+            joystickStartPos = { x: touchX, y: touchY };
+            
+            joystickContainer.style.left = `${touchX - 65}px`;
+            joystickContainer.style.top = `${touchY - 65}px`;
+        }
+        
+        joystickContainer.classList.add('active');
         joystickStick.style.transform = 'translate(0px, 0px)';
-    });
+    }, { passive: true });
 
-    canvas.addEventListener('touchmove', (e) => {
+    joystickZone.addEventListener('touchmove', (e) => {
         if (!isTouchingJoystick) return;
         const touch = e.touches[0];
-        const rect = canvas.getBoundingClientRect();
+        const rect = joystickZone.getBoundingClientRect();
         
         const currentPos = {
             x: touch.clientX - rect.left,
@@ -496,15 +535,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const visualY = (dy / distance) * stickDist;
             joystickStick.style.transform = `translate(${visualX}px, ${visualY}px)`;
         }
-    });
+    }, { passive: true });
 
-    canvas.addEventListener('touchend', () => {
+    joystickZone.addEventListener('touchend', () => {
         isTouchingJoystick = false;
         inputVector = { x: 0, y: 0 };
         
         joystickContainer.classList.remove('active');
         joystickStick.style.transform = 'translate(0px, 0px)';
-    });
+        
+        // 가로모드용 스타일 초기화 (세로모드는 CSS에 의해 복구됨)
+        const isPortrait = window.matchMedia("(max-aspect-ratio: 1.25)").matches;
+        if (!isPortrait) {
+            joystickContainer.style.left = '';
+            joystickContainer.style.top = '';
+        }
+    }, { passive: true });
 
     // ==========================================================================
     // PC 키보드 키 연동 (WASD/Arrows + J/K)

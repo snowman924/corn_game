@@ -1,0 +1,26 @@
+{
+  "name": "corn_game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/snowman924/corn_game.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/snowman924/corn_game/issues"
+  },
+  "homepage": "https://github.com/snowman924/corn_game#readme",
+  "dependencies": {
+    "puppeteer": "^25.1.0"
+  }
+}

@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300..700&family=Outfit:wght@100..900&family=Noto+Sans+KR:wght@300..900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=1.0.2">
 </head>
 <body>
     <div id="game-container">
@@ -128,11 +128,16 @@
             <!-- 게임 플레이 캔버스 -->
             <div class="canvas-wrapper">
                 <canvas id="game-canvas" width="800" height="450"></canvas>
-                
-                <!-- 모바일 가상 조작패드 가이드 (터치 시 활성화됨) -->
-                <div id="joystick-container">
-                    <div id="joystick-base">
-                        <div id="joystick-stick"></div>
+            </div>
+
+            <!-- 모바일/PC 대응 컨트롤 패널 -->
+            <div id="control-panel">
+                <!-- 조이스틱 인식 영역 -->
+                <div id="joystick-zone">
+                    <div id="joystick-container">
+                        <div id="joystick-base">
+                            <div id="joystick-stick"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -246,7 +251,7 @@
     <script src="core/shopManager.js"></script>
     <script src="core/entities.js"></script>
     <script src="core/gameEngine.js"></script>
-    <script src="render/canvasRenderer.js"></script>
-    <script src="render/uiController.js"></script>
+    <script src="render/canvasRenderer.js?v=1.0.2"></script>
+    <script src="render/uiController.js?v=1.0.2"></script>
 </body>
 </html>
